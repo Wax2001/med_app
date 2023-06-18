@@ -16,13 +16,17 @@ class MedicalChart(BaseMixin):
     birth_date = models.DateField(null=True, blank=True)
 
     @property
-    def get_average_stats(self):
+    def average_stats(self):
         questions = self.records.answers.questions.objects.filter(type="number")
-        result = {}
+        result = []
         for question in questions:
             answers = question.answers.filter(record__medical_chart=self)
             average = sum([answer.number for answer in answers])/len(answers)
-            result[question.text] = average
+            result.append({
+                "id": question.id,
+                "question": question.text,
+                "average": average
+            })
 
         return result
 

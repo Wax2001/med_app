@@ -46,11 +46,8 @@ class RecordViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Retri
         serializer.is_valid(raise_exception=True)
         record = models.Record.objects.create(medical_chart=serializer.validated_data.get("medical_chart"))
         for answer in serializer.validated_data.get("answers"):
-            models.Answer.objects.create(
-                record=record,
-                question=answer.get("question"),
-                text=answer.get("text"),
-            )
+            answer["record"] = record
+            models.Answer.objects.create(**answer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @swagger_auto_schema(

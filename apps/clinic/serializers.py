@@ -99,7 +99,15 @@ class MedicalChartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MedicalChart
-        fields = "__all__"
+        fields = (
+            "average_stats",
+            "name",
+            "surname",
+            "birth_date",
+            "records",
+            "id",
+            "created_at",
+        )
 
 
 class FormSerializer(serializers.ModelSerializer):
