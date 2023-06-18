@@ -15,22 +15,6 @@ class MedicalChart(BaseMixin):
     surname = models.CharField(max_length=255, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
 
-    @property
-    def average_stats(self):
-        questions = self.records.answers.questions.objects.filter(type="number")
-        result = []
-        for question in questions:
-            answers = question.answers.filter(record__medical_chart=self)
-            average = sum([answer.number for answer in answers])/len(answers)
-            result.append({
-                "id": question.id,
-                "question": question.text,
-                "average": average
-            })
-
-        return result
-
-
 
 class Record(BaseMixin):
     medical_chart = models.ForeignKey(MedicalChart, on_delete=models.CASCADE, related_name='records')

@@ -1,10 +1,11 @@
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, status, mixins, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.clinic import serializers
 from apps.clinic import models
+from apps.clinic.filters import QuestionFilter
 
 
 @swagger_auto_schema(request_body=serializers.MedicalChartSerializer)
@@ -12,13 +13,28 @@ class MedicalChartViewSet(viewsets.ModelViewSet):
     queryset = models.MedicalChart.objects.all()
     serializer_class = serializers.MedicalChartSerializer
 
-    # @swagger_auto_schema(
-    #     operation_description="Get average stats",
-    #     operation_summary="Get average stats",
-    # )
-    # @action(detail=True, methods=["post"])
-    # def average_stats(self, request, pk=None):
+    @swagger_auto_schema(
+        operation_description="Get average stats",
+        operation_summary="Get average stats",
+    )
+    @action(
+        detail=True,
+        methods=["get"]
+        )
+    def average_stats(self, request, pk=None):
+        medical_chart = self.get_object()
+        questions = models.Question.objects.filter(type=models.Question.NUMBER)
+        result = []
+        for question in questions:
+            answers = models.Answer.objects.filter(record__medical_chart=medical_chart, question=question)
+            if answers:
+                result.append({
+                    "id": question.id,
+                    "question": question.text,
+                    "average": sum([answer.number for answer in answers])/len(answers)
+                })
 
+        return Response(result, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(request_body=serializers.RecordSerializer)
@@ -75,6 +91,12 @@ class FormViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = models.Question.objects.all()
     serializer_class = serializers.QuestionSerializer
+
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        QuestionFilter,
+    ]
 
 
 @swagger_auto_schema(request_body=serializers.AnswerSerializer)

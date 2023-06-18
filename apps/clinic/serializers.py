@@ -52,7 +52,6 @@ class CreateRecordSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Age is not in range")
 
         for answer in attrs.get("answers"):
-            print(answer)
             if answer.get("question").form != question.form:
                 raise serializers.ValidationError("Questions are not in the same form")
             
@@ -76,6 +75,7 @@ class DetailAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Answer
         fields = (
+            "question_id",
             "question_text",
             "response",
         )
@@ -100,7 +100,7 @@ class MedicalChartSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MedicalChart
         fields = (
-            "average_stats",
+            # "average_stats",
             "name",
             "surname",
             "birth_date",
@@ -126,4 +126,3 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Answer
         fields = "__all__"
-
