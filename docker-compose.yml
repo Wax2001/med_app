@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: 'postgres:latest'
+    volumes:
+      - postgresql_data:/bitnami/postgresql
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    env_file:
+      - .env
+    command: python manage.py runserver 0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgresql_data:
